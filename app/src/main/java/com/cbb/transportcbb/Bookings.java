@@ -2,6 +2,8 @@ package com.cbb.transportcbb;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,22 +12,36 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Calendar;
+
 public class Bookings extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
 
-    EditText editTextDate,editTextTime,Username;
+    EditText Username;
     Spinner spinner3,spinner2,spinner1,spinner;
-    Button btn_pr_bk;
+    Button btn_pr_bk,getdateBtn,getTime;
     Bookdetails bkdob;
+    TextView editTextDate,editTextTime;
 
     DatabaseReference database;
+    FirebaseDatabase root;
+
+    int day;
+    int month;
+    int year;
+
+    int currentHr;
+    int currentMin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,11 +193,32 @@ public class Bookings extends AppCompatActivity implements AdapterView.OnItemSel
                 bkdob.setEmail(Username.getText().toString().trim());
                 bkdob.setQty(spinner.getSelectedItem().toString().trim());
 
-                database.push().setValue(bkdob);
+                String Email = Username.getText().toString().trim();
+                String From = spinner3.getSelectedItem().toString().trim();
+                String Date = editTextDate.getText().toString().trim();
+                String Time = editTextTime.getText().toString().trim();
+                String To = spinner2.getSelectedItem().toString().trim();
+                String Category = spinner1.getSelectedItem().toString().trim();
+                String Qty = spinner.getSelectedItem().toString().trim();
+
+                database.child(Email).setValue(bkdob);
 
                 Toast.makeText(getApplicationContext(),"Booking Success",Toast.LENGTH_LONG).show();
 
-                startActivity(new Intent(Bookings.this, home.class));
+                Intent intent = new Intent(getApplicationContext(), BookingSuccess.class);
+
+                intent.putExtra("email",Email);
+                intent.putExtra("from",From);
+                intent.putExtra("to",Date);
+                intent.putExtra("date",Time);
+                intent.putExtra("time",To);
+                intent.putExtra("category",Category);
+                intent.putExtra("qty",Qty);
+
+
+                startActivity(intent);
+
+                ClearControls();
             }
 
 
@@ -190,6 +227,54 @@ public class Bookings extends AppCompatActivity implements AdapterView.OnItemSel
         }
 
 
+
+    }
+    public void ClearControls() {
+        editTextDate.setText("");
+        editTextTime.setText("");
+        Username.setText("");
+
+
+    }
+
+    public void GetDate(View view) {
+        Calendar calendar = Calendar.getInstance();
+
+        getdateBtn = findViewById(R.id.getdateBtn);
+        editTextDate = findViewById(R.id.editTextDate);
+
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        month = calendar.get(Calendar.MONTH);
+        year = calendar.get(Calendar.YEAR);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                month = month+1;
+                String date = dayOfMonth +"-" + month + "-" + year;
+                editTextDate.setText(date);
+            }
+        },year,month,day);
+        datePickerDialog.show();
+    }
+
+    public void GetTime(View view) {
+
+        editTextTime= findViewById(R.id.editTextTime);
+        getTime= findViewById(R.id.getTime);
+
+        Calendar calendar = Calendar.getInstance();
+
+        currentHr = calendar.get(Calendar.HOUR);
+        currentMin = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog dialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                editTextTime.setText(hourOfDay+":"+ minute);
+            }
+        },currentHr,currentMin,false);
+        dialog.show();
 
     }
 }

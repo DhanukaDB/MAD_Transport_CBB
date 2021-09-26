@@ -30,7 +30,7 @@
         android:textSize="14sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/btn_2signin"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.365"
+        app:layout_constraintHorizontal_bias="0.408"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
